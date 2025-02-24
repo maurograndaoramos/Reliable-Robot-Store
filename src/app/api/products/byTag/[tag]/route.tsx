@@ -9,7 +9,9 @@ export async function GET(
     const allProducts = await fetchAllProducts();
 
     const filteredProducts = tag
-      ? allProducts.filter((product) => product.tags.includes(tag))
+      ? allProducts.filter((product) =>
+          product.tags.some((t) => t.toLowerCase() === tag.toLowerCase())
+        )
       : allProducts;
 
     const totalInventory = filteredProducts.reduce(
@@ -24,7 +26,8 @@ export async function GET(
     };
 
     return new Response(JSON.stringify(response), { status: 200 });
-  } catch {
+  } catch (error) {
+    console.error('Error fetching products by tag:', error);
     return new Response(JSON.stringify({ error: 'Failed to load products' }), {
       status: 500
     });

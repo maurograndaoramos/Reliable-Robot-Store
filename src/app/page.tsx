@@ -1,37 +1,20 @@
-'use client';
-import { useState, useEffect } from 'react';
-import TagCard from '@/components/TagsPage/TagCard';
-import Hero from '@/components/TagsPage/Hero';
-import LoadingPage from '@/components/Loading';
+import { fetchAllProducts } from '@/lib/shopify';
+import { extractTagsFromProducts } from '@/lib/tags';
 import ErrorPage from '@/components/Error';
+import Hero from '@/components/TagsPage/Hero';
+import TagCard from '@/components/TagsPage/TagCard';
 
-interface Tag {
-  tags: string[];
-}
+export default async function TagsPage() {
+  const ERROR_MESSAGE = 'Failed to load tags';
+  let tags: string[] = [];
 
-export default function TagsPage() {
-  const [tags, setTags] = useState<string[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    async function fetchTags() {
-      try {
-        const response = await fetch('/api/tags');
-        const data: Tag = await response.json();
-        setTags(data.tags);
-      } catch {
-        setError('Failed to load tags');
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchTags();
-  }, []);
-
-  if (loading) return <LoadingPage />;
-  if (error) return <ErrorPage />;
+  try {
+    const products = await fetchAllProducts();
+    tags = await extractTagsFromProducts(products);
+  } catch (error) {
+    console.error(error);
+    return <ErrorPage error={ERROR_MESSAGE} />;
+  }
 
   return (
     <div className="space-y-8">

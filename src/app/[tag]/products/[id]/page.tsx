@@ -7,8 +7,8 @@ export default async function ProductDetailPage({
 }: {
   params: Promise<{ tag: string; id: string }>;
 }) {
-  const params = await rawParams;
-  const product = await fetchProductById(params.id);
+  const { tag, id } = await rawParams;
+  const product = await fetchProductById(id);
 
   if (!product) {
     notFound();

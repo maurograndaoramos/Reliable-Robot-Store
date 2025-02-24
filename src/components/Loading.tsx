@@ -1,3 +1,6 @@
+//Deprecated
+// In the end, I decided (upon suggestion by a third party) to use mostly server-side rendering instead of client-side.
+
 import React from 'react';
 
 export default function LoadingPage(): React.ReactElement {
