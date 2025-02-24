@@ -1,0 +1,52 @@
+name: Create PR
+
+on:
+  push:
+    branches: [dev]
+
+jobs:
+  create-pr:
+    if: "${{ !contains(github.event.head_commit.message, 'ci: version bump') }}"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: |
+          npm run lint
+          npm run test
+        env:
+          NODE_ENV: test
+
+      - name: Automated Version Bump
+        uses: phips28/gh-action-bump-version@v11.0.7
+        with:
+          minor-wording: 'feat'
+          major-wording: 'BREAKING'
+          patch-wording: 'fix'
+          default: 'patch'
+          commit-message: 'ci: version bump to {{version}} [skip ci]'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          base: main
+          branch: "auto-pr/dev-to-main-${GITHUB_SHA}"
+          delete-branch: true
+          title: "chore: version bump to {{version}}"
+          body: "Automated PR from dev to main."
+          labels: automated-pr,version-bump

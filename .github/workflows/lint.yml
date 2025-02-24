@@ -1,0 +1,33 @@
+name: Lint
+
+on:
+  push:
+    branches: [ "dev", "main" ]
+  pull_request:
+    branches: [ "dev", "main" ]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v3
+
+      - name: Set up Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: 'npm'
+
+      - name: Install dependencies
+        working-directory: ./
+        run: npm ci
+
+      - name: Lint
+        working-directory: ./
+        run: npm run lint
+        env:
+          CI: true
+          ESLINT_CACHE: true
+          NODE_ENV: development
