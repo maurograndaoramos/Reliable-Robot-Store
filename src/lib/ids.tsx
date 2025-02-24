@@ -23,19 +23,21 @@ export async function fetchProductById(productId: string): Promise<Product | nul
       return null;
     }
     const product: Product = {
-      id: shopifyProduct.id,
+      id: Number(shopifyProduct.id),
       title: shopifyProduct.title,
       body_html: shopifyProduct.body_html,
       vendor: shopifyProduct.vendor,
       product_type: shopifyProduct.product_type,
       tags: shopifyProduct.tags ? shopifyProduct.tags.split(',').map((tag) => tag.trim()) : [],
       image: shopifyProduct.image,
+      price: shopifyProduct.variants.length > 0 ? shopifyProduct.variants[0].price : "0",
       variants: shopifyProduct.variants.map((variant: Variant) => ({
         id: variant.id,
         title: variant.title,
         price: variant.price,
         inventory_quantity: variant.inventory_quantity,
       })),
+      inventory_quantity: shopifyProduct.variants.reduce((total, variant) => total + variant.inventory_quantity, 0),
       inventory: shopifyProduct.variants.reduce((total, variant) => total + variant.inventory_quantity, 0),
     };
     return product;

@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
 
 const images = [
@@ -8,20 +10,29 @@ const images = [
 
 export default function Slideshow() {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [bgSize, setBgSize] = useState('125%');
 
-useEffect(() => {
+  useEffect(() => {
+    // Check window only on client
+    const updateBgSize = () => {
+      setBgSize(window.innerWidth < 700 ? '200%' : '125%');
+    };
+
+    updateBgSize();
     const interval = setInterval(() => {
-        setCurrentIndex((prev) => (prev + 1) % images.length);
+      setCurrentIndex((prev) => (prev + 1) % images.length);
+      updateBgSize();
     }, 8000);
-    return () => clearInterval(interval);
-}, []);
 
-return (
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
     <div
-        className="w-full h-full bg-no-repeat transition-all duration-5000"
-        style={{
+      className="w-full h-full bg-no-repeat transition-all duration-5000"
+      style={{
         backgroundImage: `url(${images[currentIndex]})`,
-        backgroundSize: window.innerWidth < 700 ? '200%' : '125%',
+        backgroundSize: bgSize,
         backgroundPosition: 'center left',
       }}
     />

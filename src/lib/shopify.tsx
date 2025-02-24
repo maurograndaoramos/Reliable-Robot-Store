@@ -31,6 +31,8 @@ export async function fetchAllProducts(): Promise<Product[]> {
     tags: product.tags.split(',').map(tag => tag.trim()),
     image: product.image,
     variants: product.variants,
-    inventory: product.variants.reduce((sum, variant) => sum + variant.inventory_quantity, 0)
+    inventory: product.variants.reduce((sum, variant) => sum + variant.inventory_quantity, 0),
+    price: product.variants.length > 0 ? product.variants[0].price : "0",
+    inventory_quantity: product.variants.reduce((sum, variant) => sum + variant.inventory_quantity, 0)
   }));
 }

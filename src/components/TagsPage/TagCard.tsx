@@ -6,8 +6,6 @@ interface TagCardProps {
   tag: string;
 }
 
-// <Link href={`/${encodeURIComponent(tag)}/products`} className="block bg-white p-4 rounded-lg shadow hover:bg-blue-50 transition-colors p-6">
-
 export default function TagCard({ tag }: TagCardProps) {
   return (
         <Link href={`/${encodeURIComponent(tag)}/products`}>

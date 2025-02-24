@@ -17,7 +17,8 @@ export async function GET(request: NextRequest) {
     }
 
     return NextResponse.json({ tags: uniqueTags });
-  } catch {
-    return NextResponse.json({ tags: [] });
+  } catch (error) {
+    console.error('Error fetching tags:', error);
+    return NextResponse.json({ error: 'Failed to load tags' }, { status: 500 });
   }
 }
