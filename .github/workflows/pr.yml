@@ -6,6 +6,19 @@ on:
     types:
       - completed
 
+permissions:
+  contents: write
+  pull-requests: write
+  
+#If this doesn't work, I give up
+#Spoiler: It didn't work
+#Problem with: The process '/usr/bin/git' failed with exit code 128
+#I'm already using PATs, so I don't know what's wrong
+#Tried the permissions, but it didn't work
+#At this point, I'm assuming it's a Github settings issue I lack the knowledge of
+#Needs more investigation but atm I'm just, well, giving up
+#Daniel, I apologize!!!
+
 jobs:
   create-pr:
     if: >
@@ -17,10 +30,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v2
         with:
           fetch-depth: 0
-          token: ${{ secrets.ACCESS_TOKEN }}  # PAT used here
+          token: ${{ secrets.ACCESS_TOKEN }}
 
       - name: Set up Node
         uses: actions/setup-node@v3
@@ -40,7 +53,7 @@ jobs:
           default: 'patch'
           commit-message: 'ci: version bump to {{version}} [skip ci]'
         env:
-          GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}  # PAT replaces GITHUB_TOKEN
+          GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
 
       - name: Create and push Git tag
         run: |
@@ -49,15 +62,15 @@ jobs:
           git tag -a "v${{ steps.bump-version.outputs.new_version }}" -m "Release v${{ steps.bump-version.outputs.new_version }}"
           git push origin "v${{ steps.bump-version.outputs.new_version }}"
         env:
-          GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}  # PAT already used here
+          GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v4
         with:
-          token: ${{ secrets.ACCESS_TOKEN }}  # PAT replaces GITHUB_TOKEN
-          base: main
+          token: ${{ secrets.ACCESS_TOKEN }}
+          base: "${{ github.event.repository.default_branch == 'master' && 'master' || 'main' }}"
           branch: "auto-pr/dev-to-main-${GITHUB_SHA}"
           delete-branch: true
           title: "chore: version bump to {{version}}"
           body: "Automated PR from dev to main."
-          labels: automated-pr,version-bump
+          labels: "automated-pr,version-bump"
