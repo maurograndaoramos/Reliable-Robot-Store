@@ -12,3 +12,4 @@ export async function extractTagsFromProducts(products: Product[]): Promise<stri
 
 //Just a comment to test the commit
 //And another one
+//And another one x2
