@@ -21,17 +21,18 @@ permissions:
 
 jobs:
   create-pr:
-    if: >
+    if: >-
       ${{ 
-       github.event.workflow_run.conclusion == 'success' &&
-       github.ref == 'refs/heads/dev' &&
-       !contains(github.event.workflow_run.head_commit.message, 'ci: version bump') 
+        github.event.workflow_run.conclusion == 'success' &&
+        github.ref == 'refs/heads/dev' &&
+        !contains(github.event.workflow_run.head_commit.message, 'ci: version bump') 
       }}
     runs-on: ubuntu-latest
     steps:
       - name: Check out repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
+          ref: dev
           fetch-depth: 0
           token: ${{ secrets.ACCESS_TOKEN }}
 
@@ -64,13 +65,21 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
 
+      - name: Debug Git State
+        run: |
+          echo "Current branch:"
+          git branch --show-current
+          echo "Latest commit:"
+          git log -1 --oneline
+          echo "Commits ahead of main:"
+          git rev-list --count main..HEAD
+
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v4
         with:
-          token: ${{ secrets.ACCESS_TOKEN }}
-          base: "${{ github.event.repository.default_branch == 'master' && 'master' || 'main' }}"
-          branch: "auto-pr/dev-to-main-${GITHUB_SHA}"
-          delete-branch: true
-          title: "chore: version bump to {{version}}"
+          base: main
+          branch: dev             
+          delete-branch: false    
+          title: "chore: version bump to ${{ steps.bump-version.outputs.new_version }}"
           body: "Automated PR from dev to main."
-          labels: "automated-pr,version-bump"
+          labels: automated-pr,version-bump
