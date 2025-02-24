@@ -1,38 +1,18 @@
-# Use Node.js 18 as the base image
+#This Dockerfile outlines a multi-stage build process. It starts with Node.js 18 as the base image and sets the working directory. Initially, it copies the package files and installs all the dependencies required by the project. Next, it copies the rest of the application's source code and builds the Next.js application. In the production stage, it creates a lean image by copying only the necessary built files from the builder stage, sets the environment to production, exposes the port that Next.js operates on, and finally starts the application.
+
 FROM node:18-alpine AS builder
-
-# Set working directory
 WORKDIR /app
-
-# Copy package files
 COPY package*.json ./
-
-# Install dependencies
 RUN npm ci
-
-# Copy the rest of the application
 COPY . .
-
-# Build the Next.js application
 RUN npm run build
-
-# Production image
 FROM node:18-alpine AS runner
-
 WORKDIR /app
-
-# Copy necessary files from builder
 COPY --from=builder /app/next.config.js ./
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/node_modules ./node_modules
-
-# Set environment to production
 ENV NODE_ENV production
-
-# Expose the port Next.js runs on
 EXPOSE 3000
-
-# Start the application
 CMD ["npm", "start"]

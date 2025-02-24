@@ -1,12 +1,19 @@
 name: Create PR
 
 on:
-  push:
-    branches: [dev]
+  workflow_run:
+    workflows: [ "Lint" ]
+    types:
+      - completed
 
 jobs:
   create-pr:
-    if: "${{ !contains(github.event.head_commit.message, 'ci: version bump') }}"
+    if: >
+      ${{ 
+       github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.head_branch == 'dev' &&
+       !contains(github.event.workflow_run.head_commit.message, 'ci: version bump') 
+      }}
     runs-on: ubuntu-latest
     steps:
       - name: Check out repo
@@ -21,13 +28,6 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
-
-      - name: Run tests
-        run: |
-          npm run lint
-          npm run test
-        env:
-          NODE_ENV: test
 
       - name: Automated Version Bump
         uses: phips28/gh-action-bump-version@v11.0.7
