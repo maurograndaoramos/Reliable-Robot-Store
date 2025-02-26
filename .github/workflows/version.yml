@@ -35,14 +35,6 @@ jobs:
           patch-wording: 'fix'
           default: 'patch'
           commit-message: 'ci: version bump to {{version}} [skip ci]'
-        env:
-          GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
-
-      - name: Create and push Git tag
-        run: |
-          git config --global user.name "maurograndaoramos"
-          git config --global user.email "mauro.dgramos@gmail.com"
-          git tag -a "v${{ steps.bump-version.outputs.newTag }}" -m "Release v${{ steps.bump-version.outputs.newTag }}"
-          git push origin "v${{ steps.bump-version.outputs.newTag }}"
+          tag-prefix: 'v' 
         env:
           GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}

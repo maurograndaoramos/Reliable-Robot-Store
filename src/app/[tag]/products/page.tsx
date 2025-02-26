@@ -53,7 +53,7 @@ export default async function ProductsPage({
               product={product}
               lowestPrice={lowestPrice}
               tag={tag}
-              
+
             />
           );
         })}
