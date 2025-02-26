@@ -55,3 +55,9 @@ export interface HeaderProps {
 export interface Params {
   tag: string;
 }
+
+export interface ProductCardProps {
+  product: Product;
+  lowestPrice: number;
+  tag: string;
+}

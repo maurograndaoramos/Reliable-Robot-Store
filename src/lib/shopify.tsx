@@ -12,11 +12,11 @@ if (!SHOPIFY_ACCESS_TOKEN) {
 
 export async function fetchAllProducts(): Promise<Product[]> {
   const shopifyUrl = `${SHOPIFY_BASE_URL}?access_token=${SHOPIFY_ACCESS_TOKEN}`;
-  
+
   const options: RequestInit & { next?: { revalidate: number } } = {
     next: { revalidate: 3600 }
   };
-  
+
   const response = await fetch(shopifyUrl, options);
   if (!response.ok) {
     throw new Error('Failed to fetch products from Shopify');

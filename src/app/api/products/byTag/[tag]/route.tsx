@@ -10,8 +10,8 @@ export async function GET(
 
     const filteredProducts = tag
       ? allProducts.filter((product) =>
-          product.tags.some((t) => t.toLowerCase() === tag.toLowerCase())
-        )
+        product.tags.some((t) => t.toLowerCase() === tag.toLowerCase())
+      )
       : allProducts;
 
     const totalInventory = filteredProducts.reduce(

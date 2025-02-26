@@ -2,31 +2,20 @@ name: Create PR
 
 on:
   workflow_run:
-    workflows: [ "Lint" ]
+    workflows: ["Version"]
     types:
       - completed
 
 permissions:
   contents: write
   pull-requests: write
-  
-#If this doesn't work, I give up
-#Spoiler: It didn't work
-#Problem with: The process '/usr/bin/git' failed with exit code 128
-#I'm already using PATs, so I don't know what's wrong
-#Tried the permissions, but it didn't work
-#At this point, I'm assuming it's a Github settings issue I lack the knowledge of
-#Needs more investigation but atm I'm just, well, giving up
-#Daniel, I apologize!!!
-#Update: It throws a Validation Failed: {"resource":"PullRequest","code":"custom","message":"No commits between main and auto-pr/dev-to-main-${GITHUB_SHA}"} error
-#I'm assuming it's because the PR is being created from the same commit that triggered the workflow
 
 jobs:
   create-pr:
     if: >-
       ${{ 
         github.event.workflow_run.conclusion == 'success' &&
-        github.ref == 'refs/heads/dev' &&
+        github.event.workflow_run.head_branch == 'dev' &&
         !contains(github.event.workflow_run.head_commit.message, 'ci: version bump') 
       }}
     runs-on: ubuntu-latest
@@ -45,49 +34,25 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
-
-      - name: Automated Version Bump
-        id: bump-version
-        uses: phips28/gh-action-bump-version@v11.0.7
-        with:
-          minor-wording: 'feat'
-          major-wording: 'BREAKING'
-          patch-wording: 'fix'
-          default: 'patch'
-          commit-message: 'ci: version bump to {{version}} [skip ci]'
-        env:
-          GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
-  
-      # - name: Debug Git State
-      #   run: |
-      #     echo "All branches:"
-      #     git branch -a
-      #     echo "Current branch:"
-      #     git branch --show-current
-      #     echo "Latest commit:"
-      #     git log -1 --oneline
-      #     echo "Remote URL:"
-      #     git remote -v
-      #     echo "Git status:"
-      #     git status
-      #     echo "Comparing with main:"
-      #       git log main..HEAD --oneline
-
-      - name: Create and push Git tag
+          
+      - name: Get latest commit on main
+        id: main-commit
+        run: echo "commit=$(git rev-parse origin/main)" >> $GITHUB_OUTPUT
+      
+      - name: Check for new commits
+        id: check-commits
         run: |
-          git config --global user.name "maurograndaoramos"
-          git config --global user.email "mauro.dgramos@gmail.com"
-          git tag -a "v${{ steps.bump-version.outputs.new_version }}" -m "Release v${{ steps.bump-version.outputs.new_version }}"
-          git push origin "v${{ steps.bump-version.outputs.new_version }}"
-          env:
-            GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+          NEW_COMMITS=$(git log origin/main..HEAD --oneline)
+          echo "new_commits=$NEW_COMMITS" >> $GITHUB_OUTPUT
+        continue-on-error: true
 
       - name: Create Pull Request
+        if: ${{ steps.check-commits.outputs.new_commits != '' }}
         uses: peter-evans/create-pull-request@v7.0.7
         with:
           base: main
           branch: auto-pr/dev-to-main-${{ github.sha }}          
           delete-branch: false    
-          title: "chore: version bump to ${{ steps.bump-version.outputs.new_version }}"
+          title: "chore: merge dev into main"
           body: "Automated PR from dev to main."
-          labels: automated-pr,version-bump
+          labels: automated-pr
