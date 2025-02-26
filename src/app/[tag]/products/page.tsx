@@ -54,7 +54,7 @@ export default async function ProductsPage({
               lowestPrice={lowestPrice}
               tag={tag}
 
-            /> //adding commentary to test pull
+            />
           );
         })}
       </div>
