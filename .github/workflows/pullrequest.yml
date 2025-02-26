@@ -41,7 +41,6 @@ jobs:
         continue-on-error: true
 
       - name: Create Pull Request
-        if: ${{ steps.check-commits.outputs.new_commits != '' }}
         uses: peter-evans/create-pull-request@v7.0.7
         with:
           base: main
