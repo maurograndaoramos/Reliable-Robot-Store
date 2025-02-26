@@ -1,4 +1,4 @@
-name: Create PR
+name: Automatic PR
 
 on:
   workflow_run:
@@ -15,8 +15,7 @@ jobs:
     if: >-
       ${{ 
         github.event.workflow_run.conclusion == 'success' &&
-        github.event.workflow_run.head_branch == 'dev' &&
-        !contains(github.event.workflow_run.head_commit.message, 'ci: version bump') 
+        github.event.workflow_run.head_branch == 'dev'
       }}
     runs-on: ubuntu-latest
     steps:
