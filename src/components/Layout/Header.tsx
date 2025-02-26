@@ -9,11 +9,11 @@ const Header: React.FC<HeaderProps> = ({ title = "Reliable Robot Resources" }) =
             <div className="container mx-auto flex justify-between items-center">
                 <Link href="/">
                     <h1 className="text-xl font-bold flex items-center">
-                        <Image 
-                            src="/robot02_90810.svg" 
-                            alt="Logo" 
-                            width={40} 
-                            height={40} 
+                        <Image
+                            src="/robot02_90810.svg"
+                            alt="Logo"
+                            width={40}
+                            height={40}
                             className="mr-2"
                         />
                         {title}

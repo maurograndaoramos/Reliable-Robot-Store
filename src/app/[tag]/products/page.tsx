@@ -18,8 +18,8 @@ export default async function ProductsPage({
     const allProducts = await fetchAllProducts();
     const filteredProducts = tag
       ? allProducts.filter((product) =>
-          product.tags.some((t) => t.toLowerCase() === tag.toLowerCase())
-        )
+        product.tags.some((t) => t.toLowerCase() === tag.toLowerCase())
+      )
       : allProducts;
 
     totalInventory = filteredProducts.reduce(
@@ -53,6 +53,7 @@ export default async function ProductsPage({
               product={product}
               lowestPrice={lowestPrice}
               tag={tag}
+              
             />
           );
         })}
